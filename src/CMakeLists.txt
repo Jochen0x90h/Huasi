@@ -1,0 +1,25 @@
+include_directories(".")
+add_definitions(-DASIO_STANDALONE)
+
+add_executable(${PROJECT_NAME}
+	main.cpp
+	asio.h
+	Channel.cpp
+	Channel.h
+	Gateway.cpp
+	Gateway.h
+	HttpChannel.cpp
+	HttpChannel.h
+	Object.cpp
+	Object.h
+	Parameters.h
+	Parameters.cpp
+	ptr.h
+	Server.cpp
+	Server.h
+	ZWaveNetwork.cpp
+	ZWaveNetwork.h
+	ZWaveProtocol.cpp
+	ZWaveProtocol.h
+	http-parser/http_parser.c
+)
