@@ -34,11 +34,11 @@ protected:
 
 	///
 	/// create a channel that is used for an incoming connection
-	virtual ptr<Channel> createChannel(asio::io_service & loop) noexcept = 0;
+	virtual ptr<Channel> createChannel(asio::io_service & loop) = 0;
 
 	///
 	/// called when an error occurs
-	virtual void onError(std::error_code error) noexcept = 0;
+	virtual void onError(std::error_code error) = 0;
 
 
 	// libuv callbacks

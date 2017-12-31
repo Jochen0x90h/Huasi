@@ -53,7 +53,7 @@ HttpChannel::HttpChannel(asio::io_service & loop, int timeout)
 HttpChannel::~HttpChannel() {
 }
 
-void HttpChannel::sendResponse(Response const & response) noexcept {
+void HttpChannel::sendResponse(Response const & response) {
 	std::string data = response.s.str();
 
 	// end of headers
@@ -61,12 +61,12 @@ void HttpChannel::sendResponse(Response const & response) noexcept {
 	sendData(data);
 }
 
-void HttpChannel::onConnect() noexcept {
+void HttpChannel::onConnect() {
 	// init for http server
 	http_parser_init(&this->parser, HTTP_REQUEST);
 }
 
-void HttpChannel::onData(uint8_t const * data, size_t length) noexcept {
+void HttpChannel::onData(uint8_t const * data, size_t length) {
 	size_t numParsed = http_parser_execute(&this->parser, &HttpChannel::callbacks, (char const *)data, length);
 	if (numParsed != length) {
 		// error
@@ -75,7 +75,7 @@ void HttpChannel::onData(uint8_t const * data, size_t length) noexcept {
 	}
 }
 
-char const * HttpChannel::getMethodString(Method method) noexcept {
+char const * HttpChannel::getMethodString(Method method) {
 	#define XX(num, name, string) case Method::name: return #name;
 	switch (method) {
 	HTTP_METHOD_MAP(XX)

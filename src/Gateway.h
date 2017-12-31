@@ -20,9 +20,9 @@ public:
 
 	~Gateway() override;
 
-	void onRequest(Method method, std::string url, Headers headers) noexcept override;
-	void onBody(uint8_t const * data, size_t length) noexcept override;
-	void onEnd() noexcept override;
+	void onRequest(Method method, std::string url, Headers headers) override;
+	void onBody(uint8_t const * data, size_t length) override;
+	void onEnd() override;
 	
 	
 	ptr<ZWaveNetwork> network;

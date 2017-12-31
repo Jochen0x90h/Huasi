@@ -2,7 +2,7 @@
 
 #include <map>
 #include "http-parser/http_parser.h"
-#include "url.h"
+#include "Url.h"
 #include "Channel.h"
 
 
@@ -59,51 +59,51 @@ public:
 	///
 	/// Server mode: send a http response to the client
 	/// @param response Response object dontaining the status and headers of the response
-	void sendResponse(Response const & response) noexcept;
+	void sendResponse(Response const & response);
 
 	///
 	/// Send (part of) http body
-	void sendBody(uint8_t const * data, size_t length) noexcept {sendData(data, length);}
+	void sendBody(uint8_t const * data, size_t length) {sendData(data, length);}
 
 	///
 	/// Send (part of) http body. use sendData(std::move(data)) to reduce copying of data
-	void sendBody(std::string const & data) noexcept {sendData(data);}
+	void sendBody(std::string const & data) {sendData(data);}
 
 
 	///
 	/// Returns true if this is a keep alive connection. check in onRequest(), onResponse() or onEnd()
 	/// Server mode: to close, respond with the "Connection: close" header
 	/// Client mode: to close, close() the channel
-	bool isKeepAlive() noexcept {return http_should_keep_alive(&this->parser) != 0;}
+	bool isKeepAlive() {return http_should_keep_alive(&this->parser) != 0;}
 
 	///
 	/// Get string representation of HTTP method such as GET and POST
-	static char const * getMethodString(Method method) noexcept;
+	static char const * getMethodString(Method method);
 
 protected:
 
 	///
 	/// Called when a client or server connection was established. Receiving is already enabled
-	void onConnect() noexcept override;
+	void onConnect() override;
 
 	///
 	/// Called when new data arrived
-	void onData(uint8_t const * data, size_t length) noexcept override;
+	void onData(uint8_t const * data, size_t length) override;
 
 	///
 	/// Server mode: gets called when a http request header arrived from the client
 	/// @param method http method (e.g. GET)
 	/// @param url url without protocol and host (e.g. "/foo/bar?foo=bar")
 	/// @param http headers
-	virtual void onRequest(Method method, std::string url, Headers headers) noexcept = 0;
+	virtual void onRequest(Method method, std::string url, Headers headers) = 0;
 
 	///
 	/// A (part of) a http body was received
-	virtual void onBody(uint8_t const * data, size_t length) noexcept = 0;
+	virtual void onBody(uint8_t const * data, size_t length) = 0;
 
 	///
 	/// The end of a http message was received.
-	virtual void onEnd() noexcept = 0;
+	virtual void onEnd() = 0;
 
 	// http-parser callbacks
 	static int on_message_begin(http_parser *parser);

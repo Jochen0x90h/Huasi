@@ -34,12 +34,36 @@ namespace {
 		}
 		return r;
 	}
+	
+	// encode query string
+	std::string encodeQuery(std::string const & s) {
+		std::string r;
+		for (unsigned char ch : s) {
+			if (ch == '-' || ch == '.' || ch == '_' || ch == '~'
+					|| (ch >= 'A' && ch <= 'Z')
+					|| (ch >= 'a' && ch <= 'z')
+					|| (ch >= '0' && ch <= '9')) {
+				// not reserved character
+				r += ch;
+			} else if (ch == ' ') {
+				// space
+				r += '+';
+			} else {
+				// hex escape
+				static char const hex[] = "0123456789ABCDEF";
+				r += '%';
+				r += hex[ch >> 4];
+				r += hex[ch & 15];
+			}
+		}
+		return r;
+	}
 }
 
 Gateway::~Gateway() {
 }
 
-void Gateway::onRequest(Method method, std::string url, Headers headers) noexcept {
+void Gateway::onRequest(Method method, std::string url, Headers headers) {
 	Url u(url);
 
 	// parse path
@@ -63,7 +87,7 @@ void Gateway::onRequest(Method method, std::string url, Headers headers) noexcep
 				// split argument into key and value
 				size_t eqPos = query.find('=', argStartPos);
 				if (eqPos != std::string::npos && eqPos < argEndPos) {
-					std::string key = decodeQuery(query, argStartPos, eqPos);
+					std::string key = query.substr(argStartPos, eqPos - argStartPos);
 					std::string value = decodeQuery(query, eqPos + 1, argEndPos);
 
 					parameters.parameters[key] = value;
@@ -72,8 +96,8 @@ void Gateway::onRequest(Method method, std::string url, Headers headers) noexcep
 				argStartPos = argEndPos + 1;
 			}
 			
-			// set parameters to node
-			if (this->network->set(nodeId, parameters)) {
+			// send parameters to node
+			if (this->network->sendSet(nodeId, parameters)) {
 				// send response
 				Response response(200, "OK");
 				response.addHeaders(Gateway::defaultHeaders);
@@ -83,7 +107,7 @@ void Gateway::onRequest(Method method, std::string url, Headers headers) noexcep
 				return;
 			}
 		} else if (method == Method::GET) {
-			// get parameters from node
+			// get tracked parameters from node
 			Parameters parameters;
 			if (this->network->get(nodeId, parameters)) {
 				// build response body
@@ -93,7 +117,7 @@ void Gateway::onRequest(Method method, std::string url, Headers headers) noexcep
 						data += '&';
 					data += p.first;
 					data += '=';
-					data += p.second;
+					data += encodeQuery(p.second);
 				}
 				
 				// send response
@@ -116,10 +140,10 @@ void Gateway::onRequest(Method method, std::string url, Headers headers) noexcep
 	sendResponse(response);
 }
 
-void Gateway::onBody(uint8_t const * data, size_t length) noexcept {
+void Gateway::onBody(uint8_t const * data, size_t length) {
 }
 
-void Gateway::onEnd() noexcept {
+void Gateway::onEnd() {
 	//close();
 }
 

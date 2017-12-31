@@ -24,12 +24,12 @@ public:
 
 	std::atomic<int> referenceCount;
 	
-	void addReference() {
-		std::atomic_fetch_add_explicit(&referenceCount, 1, std::memory_order_relaxed);
+	void addReference() noexcept {
+		std::atomic_fetch_add_explicit(&this->referenceCount, 1, std::memory_order_relaxed);
 	}
 
-	void removeReference() {
-		if (std::atomic_fetch_sub_explicit(&referenceCount, 1, std::memory_order_release) == 1) {
+	void removeReference() noexcept {
+		if (std::atomic_fetch_sub_explicit(&this->referenceCount, 1, std::memory_order_release) == 1) {
 			std::atomic_thread_fence(std::memory_order_acquire);
 			delete this;
 		}

@@ -9,7 +9,7 @@ Channel::Channel(asio::io_service & loop, int timeout)
 Channel::~Channel() {
 }
 
-void Channel::sendData(uint8_t const * data, size_t length) noexcept {
+void Channel::sendData(uint8_t const * data, size_t length) {
 	// add reference to this object until async_wait completes
 	addReference();
 	
@@ -49,11 +49,11 @@ void Channel::sendData(uint8_t const * data, size_t length) noexcept {
 			});
 }
 
-void Channel::shutdown() noexcept {
+void Channel::shutdown() {
 	this->socket.shutdown(asio::socket_base::shutdown_type::shutdown_send);
 }
 
-void Channel::close() noexcept {
+void Channel::close() {
 	if (this->socket.is_open()) {
 		// cancel timeout timer
 		this->timer.cancel();
@@ -69,10 +69,10 @@ void Channel::close() noexcept {
 	}
 }
 
-void Channel::onReadyToSend() noexcept {
+void Channel::onReadyToSend() {
 }
 
-void Channel::receive() noexcept {
+void Channel::receive() {
 	// add reference to this object until async_wait completes
 	addReference();
 
@@ -114,10 +114,10 @@ void Channel::receive() noexcept {
 			});
 }
 
-void Channel::onShutdown() noexcept {
+void Channel::onShutdown() {
 	close();
 }
 
-void Channel::onTimeout() noexcept {
+void Channel::onTimeout() {
 	close();
 }

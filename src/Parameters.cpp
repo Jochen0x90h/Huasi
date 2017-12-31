@@ -1,46 +1,54 @@
+#include "cast.h"
 #include "Parameters.h"
 
-
-bool Parameters::getState(std::string const & name, uint8_t & value) const {
-	std::map<std::string, std::string>::const_iterator it = this->parameters.find(name);
-	if (it == this->parameters.end())
-		return false;
-
-	value = it->second == "on" ? 0xff : 0x00;
-	return true;
+bool Parameters::contains(std::string const & name) const {
+	return this->parameters.find(name) != this->parameters.end();
 }
 
-void Parameters::setState(std::string const & name, uint8_t value) {
-	this->parameters[name] = value == 0 ? "off" : "on";
-}
-
-bool Parameters::getPercentage(std::string const & name, uint8_t & value) const {
+opt<bool> Parameters::getState(std::string const & name) const {
 	std::map<std::string, std::string>::const_iterator it = this->parameters.find(name);
 	if (it == this->parameters.end())
-		return false;
+		return nullptr;
+
+	return it->second == "on";
+}
+
+void Parameters::setState(std::string const & name, bool value) {
+	this->parameters[name] = value ? "off" : "on";
+}
+
+opt<uint8_t> Parameters::getByte(std::string const & name) const {
+	std::map<std::string, std::string>::const_iterator it = this->parameters.find(name);
+	if (it == this->parameters.end())
+		return nullptr;
+	
+	return cast<uint8_t>(it->second);
+}
+
+opt<uint8_t> Parameters::getPercentage(std::string const & name) const {
+	std::map<std::string, std::string>::const_iterator it = this->parameters.find(name);
+	if (it == this->parameters.end())
+		return nullptr;
 	
 	std::string const & v = it->second;
-	
 	if (v.length() > 2)
-		return false;
+		return nullptr;
 	
-	for (char ch : v) {
-		value *= 10;
-		if (ch < '0' || ch > '9')
-			return false;
-		value += ch - '0';
-	}
-	return true;
+	return cast<uint8_t>(v);
 }
 
-void Parameters::setPercentage(std::string const & name, uint8_t value) {
-	char buffer[4];
-	char * s = buffer + 3;
-	*s = 0;
-	do {
-		--s;
-		*s = '0' + value % 10;
-		value /= 10;
-	} while (value > 0);
-	this->parameters[name] = s;
+void Parameters::setByte(std::string const & name, uint8_t value) {
+	this->parameters[name] = cast<std::string>(value);
+}
+
+opt<uint16_t> Parameters::getWord(std::string const & name) const {
+	std::map<std::string, std::string>::const_iterator it = this->parameters.find(name);
+	if (it == this->parameters.end())
+		return nullptr;
+	
+	return cast<uint16_t>(it->second);
+}
+
+void Parameters::setWord(std::string const & name, uint16_t value) {
+	this->parameters[name] = cast<std::string>(value);
 }

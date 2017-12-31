@@ -21,50 +21,50 @@ public:
 	
 	///
 	/// send data, only call from the event loop thread
-	virtual void sendData(uint8_t const * data, size_t length) noexcept;
+	virtual void sendData(uint8_t const * data, size_t length);
 	
 	///
 	/// send string as data
-	void sendData(std::string const & data) noexcept {sendData((uint8_t const *)data.data(), data.length());}
+	void sendData(std::string const & data) {sendData((uint8_t const *)data.data(), data.length());}
 	
 	///
 	/// shutdown the connection which triggers onShutdown() on the other side
 	/// (lowlevel: we call shutdown() for write which causes socket on other side to signal eof)
-	void shutdown() noexcept;
+	void shutdown();
 	
 	///
 	/// close the channel. default implementation also deletes this channel
-	virtual void close() noexcept;
+	virtual void close();
 
 protected:
 
 	///
 	/// called when a client or server connection was established. Receiving is already enabled
-	virtual void onConnect() noexcept = 0;
+	virtual void onConnect() = 0;
 
 	///
 	/// called when channel became ready to send new data. When sending large amounts of data, first send a chunk of
 	/// several kB and then wait for onReadyToSend() before sending the next chunk. default implementation does nothing
-	virtual void onReadyToSend() noexcept;
+	virtual void onReadyToSend();
 	
-	void receive() noexcept;
+	void receive();
 	
 	///
 	/// called when new data arrived
-	virtual void onData(uint8_t const * data, size_t length) noexcept = 0;
+	virtual void onData(uint8_t const * data, size_t length) = 0;
 
 	///
 	/// called when channel was shut down or closed by peer. default implementation calls close()
-	virtual void onShutdown() noexcept;
+	virtual void onShutdown();
 
 	///
 	/// called when no data was sent or received for a given time. default imlementation calls close()
-	virtual void onTimeout() noexcept;
+	virtual void onTimeout();
 
 	///
 	/// called when an error occurs. Erros can be of categories dnsCategory(), tlsCategory(), std::system_category() or
 	/// categories of derived classes such as HttpChannel. channel will be closed and deleted after onError returns
-	virtual void onError(std::error_code error) noexcept = 0;
+	virtual void onError(std::error_code error) = 0;
 
 
 	asio::ip::tcp::socket socket;
