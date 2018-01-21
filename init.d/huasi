@@ -1,0 +1,37 @@
+#!/bin/sh /etc/rc.common
+# Place this into /etc/init.d
+# Make executable: chmod a+x huasi
+# Enable autostart: /etc/init.d/huasi enable
+# Disable autostart: /etc/init.d/huasi disable
+# Start: /etc/init.d/huasi start
+# Stop: /etc/init.d/huasi stop
+
+START=10
+STOP=15
+
+# In /etc/modules.d/usb-serial, add vid/pid of USB dongle (ZME UZB1):
+# usbserial vendor=0x0658 product=0x0200
+DEVICE=/dev/ttyUSB0
+
+PIDFILE=/var/run/huasi.pid
+
+start() {        
+		PID=`/root/huasi $DEVICE > /dev/null 2>&1 & echo $!`
+		if [ -z $PID ]; then
+			printf "%s\n" "Failed"
+		else
+			echo $PID > $PIDFILE
+			printf "%s\n" "Ok"
+		fi
+}                 
+ 
+stop() {          
+	PID=`cat $PIDFILE`
+	if [ -f $PIDFILE ]; then
+		kill -HUP $PID
+		printf "%s\n" "Ok"
+		rm -f $PIDFILE
+	else
+		printf "%s\n" "Failed"
+	fi
+}

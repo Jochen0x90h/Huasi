@@ -1,7 +1,7 @@
 include_directories(".")
 add_definitions(-DASIO_STANDALONE)
 
-add_definitions(-DDEBUG_PROTOCOL)
+#add_definitions(-DDEBUG_PROTOCOL)
 add_definitions(-DDEBUG_NETWORK)
 
 add_executable(${PROJECT_NAME}

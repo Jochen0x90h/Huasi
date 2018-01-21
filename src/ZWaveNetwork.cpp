@@ -45,11 +45,6 @@ int ZWaveNetwork::GetNodeInfoRequest::getRequest(uint8_t * data) {
 }
 
 void ZWaveNetwork::GetNodeInfoRequest::onResponse(ZWaveProtocol * protocol, uint8_t const * data, int length) {
-	/*std::cout << "GetNodeInfoRequest::onResponse " << int(this->nodeId);
-	for (int i = 0; i < length; ++i) {
-		std::cout << " " << std::setfill('0') << std::setw(2) << std::hex << int(data[i]) << std::dec;
-	}
-	std::cout << std::endl;*/
 /*
 	if (length >= 5) {
 		// received info for a node
@@ -277,7 +272,6 @@ void ZWaveNetwork::ManufacturerSpecificCommand::onCommand(Node & node, uint8_t c
 		this->id = (data[6] << 8) | data[7];
 		
 		std::map<Class, ptr<ZWaveNetwork::Command>> commands;
-		//Node & node = network->nodes[nodeId];
 		
 		// check for specific devices
 		if (this->manufacturer == 271 && this->product == 770) {
@@ -333,10 +327,8 @@ bool ZWaveNetwork::get(int nodeId, Parameters & parameters) {
 			parameters.parameters["device.name"] = node.deviceName;
 
 		if (!node.commands.empty()) {
-//Command::Sender sender(this, nodeId);
 			for (std::pair<uint8_t, ptr<Command>> p : node.commands) {
 				p.second->get(parameters);
-//p.second->sendGet(sender);
 			}
 			return true;
 		}
@@ -345,12 +337,6 @@ bool ZWaveNetwork::get(int nodeId, Parameters & parameters) {
 }
 
 void ZWaveNetwork::onRequest(uint8_t const * data, int length) {
-	/*std::cout << "ZWaveNetwork::onRequest";
-	for (int i = 0; i < length; ++i) {
-		std::cout << " " << std::setfill('0') << std::setw(2) << std::hex << int(data[i]) << std::dec;
-	}
-	std::cout << std::endl;*/
-	
 	// check if at least result and nodeId are present
 	if (length >= 3) {
 		uint8_t function = data[0];
@@ -385,43 +371,42 @@ void ZWaveNetwork::onRequest(uint8_t const * data, int length) {
 }
 
 void ZWaveNetwork::updateNode(uint8_t nodeId, uint8_t generic, uint8_t const * classes, int classCount) {
-		Node & node = this->nodes[nodeId];
-		node.name = cast<std::string>(nodeId);
-	
-		std::cout << "Node " << node.name << ": ";
-		switch (generic) {
-		case Node::CONTROLLER:
-		case Node::STATIC_CONTROLLER:
-			std::cout << "Controller" << std::endl;
-			break;
-		case Node::SWITCH_BINARY:
-			break;
-		case Node::SWITCH_MULTILEVEL:
-			std::cout << "Multilevel Switch";
-			break;
-		default:
-			std::cout << "Unknown";
-		}
-		std::cout << std::endl;
-	
-		for (int i = 0; i < classCount; ++i) {
-			switch (classes[i]) {
-			case Command::BASIC:
-				node.commands[Command::BASIC] = new BasicCommand();
-				break;
-			case Command::CONFIGURATION:
-				node.commands[Command::CONFIGURATION] = new ConfigCommand();
-				break;
-			case Command::MANUFACTURER_SPECIFIC:
-				node.commands[Command::MANUFACTURER_SPECIFIC] = new ManufacturerSpecificCommand();
-				break;
-			}
-		}
-	
-		// get current state
-		Command::Sender sender(this, nodeId);
-		for (std::pair<uint8_t, ptr<Command>> p : node.commands) {
-			p.second->sendGet(sender);
-		}
+	Node & node = this->nodes[nodeId];
+	node.name = cast<std::string>(nodeId);
 
+	std::cout << "Node " << node.name << ": ";
+	switch (generic) {
+	case Node::CONTROLLER:
+	case Node::STATIC_CONTROLLER:
+		std::cout << "Controller" << std::endl;
+		break;
+	case Node::SWITCH_BINARY:
+		break;
+	case Node::SWITCH_MULTILEVEL:
+		std::cout << "Multilevel Switch";
+		break;
+	default:
+		std::cout << "Unknown";
+	}
+	std::cout << std::endl;
+
+	for (int i = 0; i < classCount; ++i) {
+		switch (classes[i]) {
+		case Command::BASIC:
+			node.commands[Command::BASIC] = new BasicCommand();
+			break;
+		case Command::CONFIGURATION:
+			node.commands[Command::CONFIGURATION] = new ConfigCommand();
+			break;
+		case Command::MANUFACTURER_SPECIFIC:
+			node.commands[Command::MANUFACTURER_SPECIFIC] = new ManufacturerSpecificCommand();
+			break;
+		}
+	}
+
+	// get current state
+	Command::Sender sender(this, nodeId);
+	for (std::pair<uint8_t, ptr<Command>> p : node.commands) {
+		p.second->sendGet(sender);
+	}
 }

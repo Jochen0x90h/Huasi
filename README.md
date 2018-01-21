@@ -1,3 +1,5 @@
+https://wiki.fhem.de/wiki/Z-Wave-ZME_UZB1_USB_Dongle
+[[Kategorie:Z-Wave Components]]
 # Huasi
 A simple ZWave smart home server for the "ZME E|A|U|X UZB1" USB Z-Wave Transceiver. It has
 only an HTTP interface to set and get the state of the nodes in the ZWave network. It is
@@ -31,12 +33,24 @@ Response: `position.blinds=50&position.slat=50`
 - Fibaro Roller Shutter 2 (FGR-222)
 
 
+## Installation
+
+### OpenWRT
+- See openwrt.cmake for build instructions
+- Copy executable to root directory on OpenWRT
+- In /etc/modules.d/usb-serial, add vid/pid of USB dongle (ZME UZB1): usbserial vendor=0x0658 product=0x0200
+- Copy init.d/huasi to /etc/init.d/huasi
+- /etc/init.d/huasi enable
+- /etc/init.d/huasi start
+
 
 # ZWave
 This is a short introduction to the communication protocol between host and UZB USB Dongle. 
-Also see [public specifications](http://zwavepublic.com/specifications)
+All two digit values are hex values. Also see
+[public specifications](http://zwavepublic.com/specifications)
 
 ## Protocol
+This section describes the communication protocol in an abstract view.
 
 ### Request to Controller
 Send a request to the controller, e.g. get list of all nodes in the network:
@@ -60,9 +74,12 @@ receive REQUEST
 ```
 
 ## Messages
+Messages are sent to and received from the USB Dongle via a serial port (e.g. on 
+/dev/ttyUSB0 on Linux) with these settings 115200: bps, 8 bits, no parity, 1 stop bit.
 
 ### Frame
-Structure of a standard frame:
+Structure of a standard frame (for list of FUNCTION values see
+[OpenZWave](https://github.com/OpenZWave/open-zwave/blob/master/cpp/src/Defs.h)):
 ```
 FRAME = SOF length TYPE FUNCTION data checksum
 	SOF = 01 (start of frame)
@@ -247,12 +264,12 @@ COMMAND = length CLASS ID data
 	CLASS (command class 1 or 2 bytes)
 		BASIC = 20
 		CONFIGURATION = 70
-		…
+		...
 	ID (class specific command identifiers)
 		GET
 		SET
 		REPORT
-		…
+		...
 	data (data of command)
 ```
 
