@@ -10,8 +10,13 @@ void FibaroFgr222::sendSet(Sender & sender, Parameters const & parameters) {
 	opt<uint8_t> blinds = parameters.getPercentage("position.blinds");
 	opt<uint8_t> slat = parameters.getPercentage("position.slat");
 	
-	if (blinds)
+	if (blinds) {
 		flags |= 2;
+		
+		// workaround: slat does not work if blinds is zero and current values of blinds and slat are zero 
+		if (*blinds == 0 && slat && *slat > 0)
+			blinds = 1;
+	}
 	if (slat)
 		flags |= 1;
 
