@@ -1,5 +1,5 @@
 #include <iostream>
-#include "FibaroFgr222.h"
+#include "FibaroFgr222.hpp"
 
 
 FibaroFgr222::~FibaroFgr222() {
@@ -7,8 +7,8 @@ FibaroFgr222::~FibaroFgr222() {
 
 void FibaroFgr222::sendSet(Sender & sender, Parameters const & parameters) {
 	uint8_t flags = 0;
-	opt<uint8_t> blinds = parameters.getPercentage("position.blinds");
-	opt<uint8_t> slat = parameters.getPercentage("position.slat");
+	optional<uint8_t> blinds = parameters.getPercentage("position.blinds");
+	optional<uint8_t> slat = parameters.getPercentage("position.slat");
 	
 	if (blinds) {
 		flags |= 2;
@@ -62,7 +62,7 @@ FibaroFgr222Config::~FibaroFgr222Config() {
 void FibaroFgr222Config::sendSet(Sender & sender, Parameters const & parameters) {
 	ConfigCommand::sendSet(sender, parameters);
 	
-	if (opt<uint16_t> slatTime = parameters.getWord("config.slatTime")) {
+	if (optional<uint16_t> slatTime = parameters.getWord("config.slatTime")) {
 		// device does not report the new value, therefore set it directly
 		this->slatTime = *slatTime;
 		sendWord(sender, SLAT_TIME, *slatTime);

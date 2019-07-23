@@ -1,6 +1,6 @@
 #include <assert.h>
-#include "Channel.h"
-#include "ptr.h"
+#include "Channel.hpp"
+#include "ptr.hpp"
 
 
 Server::Server(asio::io_service & loop, asio::ip::tcp::endpoint const & endpoint) : acceptor(loop, endpoint) {

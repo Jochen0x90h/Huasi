@@ -1,8 +1,8 @@
 #pragma once
 
-#include "HttpChannel.h"
-#include "ZWaveNetwork.h"
-#include "ptr.h"
+#include "http/HttpChannel.hpp"
+#include "zwave/ZWaveNetwork.hpp"
+#include "ptr.hpp"
 
 
 ///

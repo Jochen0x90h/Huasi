@@ -1,12 +1,12 @@
 #include <iostream>
 #include <iomanip>
-#include "cast.h"
-#include "ZWaveProtocol.h"
+#include "cast.hpp"
+#include "ZWaveProtocol.hpp"
 
 using spb = asio::serial_port_base;
 
 
-// zwave error category
+// ZWave error category
 class ZWaveCategory : public error_category {
 public:
 	const char *name() const noexcept override {
@@ -23,9 +23,9 @@ public:
 		return std::string();
 	}
 };
-static ZWaveCategory zwaveCategory;
+static ZWaveCategory zWaveCategory;
 error_category & getZWaveCategory() {
-	return zwaveCategory;
+	return zWaveCategory;
 }
 
 #ifdef DEBUG_PROTOCOL
@@ -87,8 +87,9 @@ ZWaveProtocol::Request::~Request() {
 
 // ZWaveProtocol
 
-ZWaveProtocol::ZWaveProtocol(asio::io_service & loop, std::string const & device)
-		: tty(loop), txTimer(loop), txRetryCount(0), rxPosition(0) {
+ZWaveProtocol::ZWaveProtocol(asio::io_service &loop, const std::string &device)
+	: tty(loop), txTimer(loop)
+{
 	this->tty.open(device);
 	
 	// set 115200 8N1
@@ -108,6 +109,7 @@ ZWaveProtocol::~ZWaveProtocol() {
 void ZWaveProtocol::sendRequest(ptr<Request> request) {
 	this->requests.push_back(request);
 	if (this->requests.size() == 1) {
+		// sent request immediately if request queue was empty
 		sendRequest();
 	}
 }
@@ -165,7 +167,7 @@ void ZWaveProtocol::receive() {
 											
 											// check for end of request procedure
 											if ((isResponse && sr == nullptr) || isRequest) {
-												// cancel timeout and reset retry count (if ACK was missing)
+												// cancel timeout and reset retry count
 												this->txTimer.cancel();
 												this->txRetryCount = 0;
 
@@ -279,10 +281,10 @@ void ZWaveProtocol::sendRequest() {
 	this->txBuffer[length] = calcChecksum(this->txBuffer + 1, length - 1);
 	
 	// start timeout timer
-	this->txTimer.expires_from_now(std::chrono::milliseconds(ACK_TIMEOUT));
+	this->txTimer.expires_from_now(std::chrono::milliseconds(RESPONSE_TIMEOUT));
 	this->txTimer.async_wait([this] (error_code error) {
 		if (!error) {
-			// timer expired before ACK or NACK was received
+			// timer expired before response (ACK or NACK) was received
 			resendRequest(2);
 		}
 	});
@@ -299,7 +301,7 @@ void ZWaveProtocol::sendRequest() {
 				if (error) {
 					onError(error);
 				} else {
-					// wait for timeout, ACK or NACK
+					// wait for response (ACK or NACK) or timeout
 				}
 			});
 }
@@ -317,7 +319,7 @@ void ZWaveProtocol::resendRequest(int error) {
 		this->requests.pop_front();
 		
 		// inform of error and delete
-		onError(error_code(error, zwaveCategory));
+		onError(error_code(error, zWaveCategory));
 	}
 }
 
@@ -351,11 +353,11 @@ void ZWaveProtocol::sendNack() {
 			});
 }
 
-uint8_t ZWaveProtocol::calcChecksum(uint8_t const * buffer, int length) {
+uint8_t ZWaveProtocol::calcChecksum(const uint8_t *data, int length) {
     uint8_t checksum = 0xff;
     for (int i = 0; i < length; ++i) {
         // xor bytes
-        checksum ^= buffer[i];
+        checksum ^= data[i];
     }
     return checksum;
 }

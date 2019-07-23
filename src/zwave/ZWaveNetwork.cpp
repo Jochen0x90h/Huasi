@@ -1,7 +1,7 @@
 #include <iostream>
 #include <iomanip>
-#include "ZWaveNetwork.h"
-#include "nodes/FibaroFgr222.h"
+#include "ZWaveNetwork.hpp"
+#include "FibaroFgr222.hpp"
 
 
 // DiscoverNodesRequest
@@ -147,8 +147,8 @@ ZWaveNetwork::BasicCommand::~BasicCommand() {
 }
 
 void ZWaveNetwork::BasicCommand::sendSet(Sender & sender, Parameters const & parameters) {
-	opt<bool> state = parameters.getState("state");
-	opt<uint8_t> dim = parameters.getPercentage("dim");
+	optional<bool> state = parameters.getState("state");
+	optional<uint8_t> dim = parameters.getPercentage("dim");
 	if (state || dim) {
 		uint8_t value = dim ? *dim : (*state ? 0xff : 0x00);
 		uint8_t const setValue[] = {BASIC, SET, value};
@@ -305,7 +305,7 @@ ZWaveNetwork::ZWaveNetwork(asio::io_service & service, std::string const & devic
 ZWaveNetwork::~ZWaveNetwork() {
 }
 
-bool ZWaveNetwork::sendSet(int nodeId, Parameters const & parameters) {
+bool ZWaveNetwork::sendSet(uint32_t nodeId, Parameters const & parameters) {
 	if (nodeId >= 0 && nodeId < 256) {
 		Node & node = this->nodes[nodeId];
 		if (!node.commands.empty()) {
@@ -319,7 +319,7 @@ bool ZWaveNetwork::sendSet(int nodeId, Parameters const & parameters) {
 	return false;
 }
 
-bool ZWaveNetwork::get(int nodeId, Parameters & parameters) {
+bool ZWaveNetwork::get(uint32_t nodeId, Parameters & parameters) {
 	if (nodeId >= 0 && nodeId < 256) {
 		Node & node = this->nodes[nodeId];
 		parameters.parameters["node.name"] = node.name;

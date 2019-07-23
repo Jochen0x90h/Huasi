@@ -2,9 +2,9 @@
 
 #include <deque>
 #include <chrono>
-#include "asio.h"
-#include "Object.h"
-#include "ptr.h"
+#include "asio.hpp"
+#include "Network.hpp"
+#include "ptr.hpp"
 
 
 /// Get ZWave error category
@@ -13,7 +13,7 @@ error_category & getZWaveCategory();
 ///
 /// ZWave protocol to a serial ZWave UZB1 dongle. Handles lowlevel request/response and ack/nack stuff
 /// http://zwavepublic.com/specifications
-class ZWaveProtocol : public Object {
+class ZWaveProtocol : public Network {
 public:
 	// Message type
 	enum MessageType {
@@ -80,12 +80,12 @@ public:
 		///
 		/// Get request and return the length which may be up to MAX_REQUEST_LENGTH
 		/// @param data the data of the REQUEST frame: FRAME = SOF length REQUEST FUNCTION data [funcId] checksum
-		virtual int getRequest(uint8_t * data) = 0;
+		virtual int getRequest(uint8_t *data) = 0;
 		
 		///
 		/// Called when the response to a request was received
 		/// @param data the data of the RESPONSE frame: : FRAME = SOF length RESPONSE FUNCTION data checksum
-		virtual void onResponse(ZWaveProtocol * protocol, uint8_t const * data, int length) = 0;
+		virtual void onResponse(ZWaveProtocol *protocol, const uint8_t *data, int length) = 0;
 	
 
 		// ZWave FUNCTION (e.g. ZW_SEND_DATA)
@@ -100,7 +100,7 @@ public:
 		SendRequest(uint8_t function) : Request(function) {}
 
 		/// receive the additional response, a request that contains the funcId and typically a transmit status
-		virtual void onRequest(ZWaveProtocol * protocol, uint8_t const * data, int length) = 0;
+		virtual void onRequest(ZWaveProtocol *protocol, const uint8_t *data, int length) = 0;
 
 	private:
 		// an id to identify the transmit status request which is actually a response to this request
@@ -112,13 +112,13 @@ public:
 	///
 	/// Constructor
 	/// @param loop event loop for asynchronous io
-	/// @param device serial device of the zwave dongle
-	ZWaveProtocol(asio::io_service & loop, std::string const & device);
+	/// @param device serial device of the ZWave controller
+	ZWaveProtocol(asio::io_service &loop, const std::string &device);
 
 	~ZWaveProtocol() override;
 
 	///
-	/// Send a request to the zwave controller and call request->onResponse() to receive the response
+	/// Send a request to the ZWave controller. When the response arrives, request->onResponse() gets called
 	void sendRequest(ptr<Request> request);
 
 protected:
@@ -128,12 +128,12 @@ protected:
 	virtual void onRequest(uint8_t const * data, int length) = 0;
 	
 	///
-	/// called when an error occurs
+	/// Called when an error occurs
 	virtual void onError(error_code error) = 0;
 
 	enum Time {
-		// wait for ACK timeout
-		ACK_TIMEOUT = 1500
+		// time to wait for a response (ACK or NACK) from the ZWave controller
+		RESPONSE_TIMEOUT = 1500
 	};
 
 
@@ -153,8 +153,8 @@ protected:
 	/// Send not acknowledge (after a frame was received with checksum error)
 	void sendNack();
 
-	/// Calculate checksum of zwave frame
-	uint8_t calcChecksum(uint8_t const * buffer, int length);
+	/// Calculate checksum of ZWave frame
+	uint8_t calcChecksum(const uint8_t *data, int length);
 
 	
 	// serial connection to zwave dongle
@@ -166,10 +166,10 @@ protected:
 	// send buffer and timeout timer
 	uint8_t txBuffer[256];
 	asio::steady_timer txTimer;
-	int txRetryCount;
+	int txRetryCount = 0;
 	
 	// recieve buffer
-	int rxPosition;
+	int rxPosition = 0;
 	uint8_t rxBuffer[256];
 
 	uint8_t nextFuncId = 1;

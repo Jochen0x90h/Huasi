@@ -1,8 +1,7 @@
 #pragma once
 
-#include "ZWaveProtocol.h"
-#include "Parameters.h"
-#include "cast.h"
+#include "ZWaveProtocol.hpp"
+#include "cast.hpp"
 
 
 ///
@@ -292,14 +291,14 @@ public:
 	/// @param nodeId id of node
 	/// @param parameters parameters to set
 	/// @return true if node exists in the ZWave network
-	bool sendSet(int nodeId, Parameters const & parameters);
+	bool sendSet(uint32_t nodeId, const Parameters &parameters) override;
 	
 	///
 	/// get tracked parameters of a node
 	/// @param nodeId id of node
 	/// @param parameters parameters to get
 	/// @return true if node exists in the ZWave network
-	bool get(int nodeId, Parameters & parameters);
+	bool get(uint32_t nodeId, Parameters &parameters) override;
 	
 protected:
 

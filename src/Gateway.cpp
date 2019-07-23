@@ -1,5 +1,5 @@
 #include <stdlib.h> // strtol
-#include "Gateway.h"
+#include "Gateway.hpp"
 
 
 namespace {

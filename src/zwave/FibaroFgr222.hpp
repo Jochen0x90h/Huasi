@@ -1,6 +1,6 @@
 #pragma once
 
-#include "ZWaveNetwork.h"
+#include "ZWaveNetwork.hpp"
 
 
 ///

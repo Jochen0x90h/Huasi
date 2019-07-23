@@ -2,9 +2,9 @@
 
 #include <string>
 #include <system_error>
-#include "asio.h"
-#include "Object.h"
-#include "ptr.h"
+#include "asio.hpp"
+#include "Object.hpp"
+#include "ptr.hpp"
 
 
 class Channel;

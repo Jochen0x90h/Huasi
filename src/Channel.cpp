@@ -1,5 +1,5 @@
 #include <iostream>
-#include "Channel.h"
+#include "Channel.hpp"
 
 
 Channel::Channel(asio::io_service & loop, int timeout)

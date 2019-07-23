@@ -1,19 +1,30 @@
 #include <iostream>
-#include "ZWaveNetwork.h"
-#include "Channel.h"
-#include "HttpChannel.h"
-#include "Gateway.h"
-#include "ptr.h"
+#include "zwave/ZWaveNetwork.hpp"
+#include "enocean/EnOceanNetwork.hpp"
+#include "http/HttpChannel.hpp"
+#include "Gateway.hpp"
+#include "ptr.hpp"
 
 
 class MyZWaveNetwork : public ZWaveNetwork {
 public:
-	MyZWaveNetwork(asio::io_service & service, std::string const & device)
-			: ZWaveNetwork(service, device) {
+	MyZWaveNetwork(asio::io_service &service, const std::string &device)
+		: ZWaveNetwork(service, device) {
 	}
 
 	void onError(error_code error) noexcept override {
 		std::cout << "ZWaveNetwork::onError " << error.category().name() << ":" << error.message() << std::endl;
+	}
+};
+
+class MyEnOceanNetwork : public EnOceanNetwork {
+public:
+	MyEnOceanNetwork(asio::io_service &service, const std::string &device)
+		: EnOceanNetwork(service, device) {
+	}
+
+	void onError(error_code error) noexcept override {
+		std::cout << "EnOceanNetwork::onError " << error.category().name() << ":" << error.message() << std::endl;
 	}
 };
 
@@ -27,9 +38,10 @@ public:
 	}
 };
 
+// server that accepts connections and creates a MyGateway instance for every incoming connection
 class MyServer : public Server {
 public:
-	MyServer(asio::io_service & loop, asio::ip::tcp::endpoint const & endpoint, ptr<ZWaveNetwork> network)
+	MyServer(asio::io_service & loop, const asio::ip::tcp::endpoint &endpoint, ptr<ZWaveNetwork> network)
 			: Server(loop, endpoint), network(network) {
 	}
 	
@@ -53,9 +65,14 @@ int main(int argc, char ** argv) {
 	char const * device = argv[1];
 	int port = argc <= 2 ? 8080 : atoi(argv[2]);
 	
-	// zwave network
+	// event loop
 	asio::io_service loop;
+	
+	// ZWave network
 	ptr<ZWaveNetwork> network = new MyZWaveNetwork(loop, device);
+
+	// EnOcean network
+	//ptr<EnOceanNetwork> network = new MyEnOceanNetwork(loop, device);
 
 	// http server
 	ptr<MyServer> server = new MyServer(loop, asio::ip::tcp::endpoint(asio::ip::tcp::v4(), port), network);

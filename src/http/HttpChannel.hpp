@@ -1,9 +1,9 @@
 #pragma once
 
 #include <map>
-#include "http-parser/http_parser.h"
-#include "Url.h"
-#include "Channel.h"
+#include "http_parser.h"
+#include "Url.hpp"
+#include "../Channel.hpp"
 
 
 /// Get HTTP error category

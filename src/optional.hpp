@@ -2,14 +2,14 @@
 
 
 template <typename T>
-class opt {
+class optional {
 public:
   bool valid;
   T value;
 
-  opt(std::nullptr_t p = nullptr) : valid(false), value() {}
+  optional(std::nullptr_t p = nullptr) : valid(false), value() {}
 
-  opt(T value) : valid(true), value(value) {
+  optional(T value) : valid(true), value(value) {
   }
 
   const T & operator *() const {
@@ -28,12 +28,12 @@ public:
      return &this->value;
   }
 
-  opt<T> & operator =(std::nullptr_t p) {
+  optional<T> & operator =(std::nullptr_t p) {
      this->valid = false;
      return *this;
   }
 
-  opt<T> & operator =(T value) {
+  optional<T> & operator =(T value) {
      this->valid = true;
      this->value = value;
      return *this;

@@ -4,30 +4,58 @@ add_definitions(-DASIO_STANDALONE)
 #add_definitions(-DDEBUG_PROTOCOL)
 add_definitions(-DDEBUG_NETWORK)
 
-add_executable(${PROJECT_NAME}
+set(SOURCES
 	main.cpp
-	asio.h
-	cast.h
+	asio.hpp
+	cast.hpp
 	Channel.cpp
-	Channel.h
+	Channel.hpp
 	Gateway.cpp
-	Gateway.h
-	HttpChannel.cpp
-	HttpChannel.h
+	Gateway.hpp
 	Object.cpp
-	Object.h
-	opt.h
-	Parameters.h
+	Object.hpp
+	optional.hpp
+	Parameters.hpp
 	Parameters.cpp
-	ptr.h
+	ptr.hpp
 	Server.cpp
-	Server.h
-	ZWaveNetwork.cpp
-	ZWaveNetwork.h
-	ZWaveProtocol.cpp
-	ZWaveProtocol.h
-	nodes/FibaroFgr222.cpp
-	nodes/FibaroFgr222.h
-	http-parser/http_parser.c
+	Server.hpp
+	Network.cpp
+	Network.hpp
+)
+source_group(Sources FILES ${SOURCES})
+
+set(ZWAVE
+	zwave/ZWaveNetwork.cpp
+	zwave/ZWaveNetwork.hpp
+	zwave/ZWaveProtocol.cpp
+	zwave/ZWaveProtocol.hpp
+	zwave/FibaroFgr222.cpp
+	zwave/FibaroFgr222.hpp
+)
+source_group(ZWave FILES ${ZWAVE})
+
+set(ENOCEAN
+	enocean/EnOceanProtocol.cpp
+	enocean/EnOceanProtocol.hpp
+	enocean/EnOceanNetwork.cpp
+	enocean/EnOceanNetwork.hpp
+)
+source_group(EnOcean FILES ${ENOCEAN})
+
+set(HTTP
+	http/http_parser.c
+	http/http_parser.h
+	http/HttpChannel.cpp
+	http/HttpChannel.hpp
+	http/Url.hpp
+)
+source_group(HTTP FILES ${HTTP})
+
+add_executable(${PROJECT_NAME}
+	${SOURCES}
+	${ZWAVE}
+	${ENOCEAN}
+	${HTTP}
 )
 target_link_libraries(${PROJECT_NAME} ${LIBRARIES})

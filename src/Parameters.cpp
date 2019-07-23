@@ -1,11 +1,11 @@
-#include "cast.h"
-#include "Parameters.h"
+#include "cast.hpp"
+#include "Parameters.hpp"
 
 bool Parameters::contains(std::string const & name) const {
 	return this->parameters.find(name) != this->parameters.end();
 }
 
-opt<bool> Parameters::getState(std::string const & name) const {
+optional<bool> Parameters::getState(std::string const & name) const {
 	std::map<std::string, std::string>::const_iterator it = this->parameters.find(name);
 	if (it == this->parameters.end())
 		return nullptr;
@@ -17,7 +17,7 @@ void Parameters::setState(std::string const & name, bool value) {
 	this->parameters[name] = value ? "off" : "on";
 }
 
-opt<uint8_t> Parameters::getByte(std::string const & name) const {
+optional<uint8_t> Parameters::getByte(std::string const & name) const {
 	std::map<std::string, std::string>::const_iterator it = this->parameters.find(name);
 	if (it == this->parameters.end())
 		return nullptr;
@@ -25,7 +25,7 @@ opt<uint8_t> Parameters::getByte(std::string const & name) const {
 	return cast<uint8_t>(it->second);
 }
 
-opt<uint8_t> Parameters::getPercentage(std::string const & name) const {
+optional<uint8_t> Parameters::getPercentage(std::string const & name) const {
 	std::map<std::string, std::string>::const_iterator it = this->parameters.find(name);
 	if (it == this->parameters.end())
 		return nullptr;
@@ -41,7 +41,7 @@ void Parameters::setByte(std::string const & name, uint8_t value) {
 	this->parameters[name] = cast<std::string>(value);
 }
 
-opt<uint16_t> Parameters::getWord(std::string const & name) const {
+optional<uint16_t> Parameters::getWord(std::string const & name) const {
 	std::map<std::string, std::string>::const_iterator it = this->parameters.find(name);
 	if (it == this->parameters.end())
 		return nullptr;
